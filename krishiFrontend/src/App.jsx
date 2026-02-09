@@ -16,9 +16,8 @@ import Farms from "./components/farms/farms";
 import Fields from "./components/fields/fields";
 import FieldView from "./components/fields/fieldView";
 import Crops from "./components/crops/crops";
-import Projects from "./components/projects/projects";
-import CreateProject from "./components/projects/createProject";
 import Livestocks from "./components/livestocks/livestocks";
+import Tasks from "./components/tasks/tasks";
 
 import Cookies from "js-cookie";
 
@@ -53,9 +52,8 @@ function App() {
 					<Route path="fields" element={<Fields />} />
 					<Route path="fields/view" element={<FieldView />} />
 					<Route path="crops" element={<Crops />} />
-					<Route path="projects" element={<Projects />} />
-					<Route path="projects/create" element={<CreateProject />} />
 					<Route path="livestocks" element={<Livestocks />} />
+					<Route path="tasks" element={<Tasks />} />
 				</Route>
 
 				<Route

@@ -26,13 +26,5 @@ urlpatterns = [
     path('api/fetch_livestocks/',fetch_livestocks),
     path('api/edit_livestock/',edit_livestock),
     path('api/delete_livestock/',delete_livestock),
-    path('api/fetch_totals/',fetch_totals),
-    path('api/create_project/',create_project),
-    path('api/fetch_projects/',fetch_projects),
-    path('api/update_project_status/<int:pk>/', update_project_status),
-    path('api/delete_project/',delete_project),
-    path('api/fetch_project_status/',fetch_project_status),
-    path('api/fetch_projects_per_farm/',fetch_projects_per_farm)
-
-
+    path('api/fetch_totals/',fetch_totals)
 ]

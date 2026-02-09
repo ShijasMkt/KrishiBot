@@ -12,7 +12,7 @@ export default function Sidebar() {
 		{ label: "Fields", icon: "fa-solid fa-border-none", path: "/fields/" },
 		{ label: "Crops", icon: "fa-solid fa-wheat-awn", path: "/crops/" },
 		{ label: "Livestocks", icon: "fa-solid fa-cow", path: "/livestocks/" },
-		{ label: "Projects", icon: "fa-solid fa-diagram-project", path: "/projects/" },
+		{label:"Tasks",icon:"fa-solid fa-list", path:"/tasks/"}
 	];
 
 	const handleMenuClick = (item) => {

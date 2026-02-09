@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser,BaseUserManager
 from django.contrib.auth.hashers import make_password
+from django.utils import timezone
 
 class UserManager(BaseUserManager):
     def create_user(self, email, name, password=None):
@@ -67,22 +68,27 @@ class Livestock(models.Model):
     color=models.CharField(max_length=50,null=True,blank=True)
         
 
+class TaskSchedule(models.Model):
+    field = models.ForeignKey(Field, on_delete=models.CASCADE, related_name='schedules')
+    crop = models.ForeignKey(Crop, on_delete=models.CASCADE, related_name='schedules')
+    
+    sowing_date = models.DateField()
+    expected_harvest_date = models.DateField()
+    
+    status = models.CharField(
+        max_length=20,
+        choices=[('Planned', 'Planned'), ('Ongoing', 'Ongoing'), ('Completed', 'Completed')],
+        default='Planned'
+    )
+    
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('field', 'sowing_date')  
 
-class Project(models.Model):
-    STATUS_CHOICES = [
-        ('not_started', 'Not Started'),
-        ('in_progress', 'In Progress'),
-        ('completed', 'Completed'),
-        ('on_hold', 'On Hold'),
-        ('cancelled', 'Cancelled'),
-    ]
-    title = models.CharField(max_length=200)
-    description = models.TextField(blank=True, null=True)
-    deadline = models.DateField()
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='not_started')
-    deleted=models.BooleanField(default=False)
+    def is_upcoming(self):
+        return self.sowing_date > timezone.now().date()
     
-    farm = models.ForeignKey(Farm, on_delete=models.SET_NULL, null=True, blank=True, related_name='projects')
-    
-    created_at = models.DateTimeField(auto_now_add=True)   
-    
+    def is_due_for_harvest(self):
+        return self.expected_harvest_date <= timezone.now().date()

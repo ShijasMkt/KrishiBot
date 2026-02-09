@@ -8,7 +8,7 @@ from rest_framework.permissions import AllowAny,IsAuthenticated
 from dashboard.models import *
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate
-from .tools.serializer import FarmSerializer,CropSerializer,FieldSerializer,ProjectSerializer,LivestockSerializer
+from .tools.serializer import FarmSerializer,CropSerializer,FieldSerializer,LivestockSerializer
 from decimal import Decimal
 from django.db.models import Count
 # Create your views here.
@@ -363,88 +363,4 @@ def fetch_totals(request):
         'total_crops': total_crops,
         'total_fields': total_fields
         })
-    
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def create_project(request):    
-    data=request.data
-    project_data = data.get('projectData')
 
-    title = project_data.get('title')
-    description = project_data.get('description', '')
-    deadline = project_data.get('deadline')
-    farm_field = project_data.get('farm_field')
-
-   
-    farm = Farm.objects.get(id=farm_field)
-
-    if farm:
-        # Create the project and associate it with the farm
-        project = Project.objects.create(
-            title=title,
-            description=description,
-            deadline=deadline,
-            farm=farm
-        )
-
-        project.save()
-
-        return JsonResponse({'message': 'Project created successfully!'}, status=201)
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def fetch_projects(request):
-    projects_data=Project.objects.filter(deleted=False)
-    serializer=ProjectSerializer(projects_data,many=True)
-    return Response(status=status.HTTP_200_OK,data=serializer.data)
-    
-@api_view(['PATCH'])
-@permission_classes([AllowAny])
-def update_project_status(request, pk):
-    try:
-        project = Project.objects.get(pk=pk)
-    except Project.DoesNotExist:
-        return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    new_status = request.data.get('status')
-    if new_status not in dict(Project.STATUS_CHOICES).keys():
-        return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
-
-    project.status = new_status
-    project.save()
-    return Response(ProjectSerializer(project).data)
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def delete_project(request):
-    if request.method=='POST':
-        project_id=request.data.get('projectID') 
-        project=Project.objects.get(id=project_id)
-        if project:
-            project.deleted=True
-            project.save()
-            return Response(status=status.HTTP_200_OK)
-    
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def fetch_project_status(request):
-    completed = Project.objects.filter(status='completed', deleted=False).count()
-    not_completed = Project.objects.exclude(status='completed').filter(deleted=False).count()
-
-    return JsonResponse({
-        "completed": completed,
-        "not_completed": not_completed
-    })
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def fetch_projects_per_farm(request):
-    data = (
-        Farm.objects.filter(deleted=False)
-        .annotate(project_count=Count("projects", filter=models.Q(projects__deleted=False)))
-        .values("name", "project_count")
-        .order_by("-project_count")
-    )
-    return JsonResponse(list(data), safe=False)
